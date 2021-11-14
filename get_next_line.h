@@ -16,6 +16,12 @@
 # include <stdlib.h>
 # include <unistd.h>
 
+
+
+# include <stdio.h> //DELETEME!!!
+
+
+
 char	*get_next_line(int fd);
 int		ft_strchr_int(const char *s, int c);
 char	*ft_strdup(const char *s1);

@@ -12,24 +12,65 @@
 
 #include "get_next_line.h"
 
+char	*add_str(char *buf, char *tmp)
+{
+	char	*meow;
+
+	meow = ft_strjoin((const char *)buf, (const char *)tmp);
+	free(buf);
+	return (meow);
+}
+
+char	*case_rmd(char *rmd, char *tmp)
+{
+	char	*buf;
+
+	if (rmd)
+		buf = ft_strjoin(rmd, tmp);
+	else
+		buf = ft_strdup(tmp);
+	return (buf);
+}
+
+int	read_file(int fd, char **tmp, char **buf, int *n, char **rmd)
+{
+	int	r;
+
+	r = read(fd, (void *)(*tmp), BUFFER_SIZE);
+	(*tmp)[r] = '\0';
+	*buf = add_str(*buf, *tmp);
+	*n = ft_strchr_int(*buf, '\n');
+	*rmd = add_str(*rmd, *buf);
+	return (r);
+}
+
 char	*get_next_line(int fd)
 {
-	static char	*rmd;
+	static char	*rmd = NULL;
 	char		*buf;
+	char		*tmp;
 	int			r;
 	int			n;
 
-	buf = (char *)malloc(BUFFER_SIZE + 1);
-	rmd = NULL;
-	r = read(fd, (void *)buf, BUFFER_SIZE);
-	buf[r] = '\0';
-	if (rmd)
-		buf = ft_strjoin(rmd, buf);
+	tmp = (char *)malloc(BUFFER_SIZE + 1);
+	r = read(fd, (void *)tmp, BUFFER_SIZE);
+	tmp[r] = '\0';
+	buf = case_rmd(rmd, tmp);
 	n = ft_strchr_int(buf, '\n');
-	if (n < ft_strlen(buf))
+	while (n == -1 && r == BUFFER_SIZE)
+		r = read_file(fd, &tmp, &buf, &n, &rmd);
+	free(tmp);
+	if (n != -1)
 	{
-		buf += n;
-		rmd = ft_strdup((const char *)buf);
+		rmd = ft_strdup((const char *)&buf[n + 1]);
+		buf[n + 1] = '\0';
+	}
+	if (!r && rmd && n == -1)
+	{
+		if (buf[0])
+			buf = add_str(buf, "\n");
+		free(rmd);
+		rmd = NULL;
 	}
 	return (buf);
 }
