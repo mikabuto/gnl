@@ -37,11 +37,30 @@ int	read_file(int fd, char **tmp, char **buf, int *n, char **rmd)
 	int	r;
 
 	r = read(fd, (void *)(*tmp), BUFFER_SIZE);
+	if (r == -1)
+	{
+		free(*tmp);
+		return (r);
+	}
 	(*tmp)[r] = '\0';
 	*buf = add_str(*buf, *tmp);
 	*n = ft_strchr_int(*buf, '\n');
 	*rmd = add_str(*rmd, *buf);
 	return (r);
+}
+
+void	case_no_nl(int n, char **buf, char **rmd)
+{
+	if (n == -1)
+	{
+		if(!((*buf)[0]))
+		{
+			free(*buf);
+			*buf = NULL;
+		}
+		free(*rmd);
+		*rmd = NULL;
+	}
 }
 
 char	*get_next_line(int fd)
@@ -52,8 +71,17 @@ char	*get_next_line(int fd)
 	int			r;
 	int			n;
 
+	if (fd < 0 || BUFFER_SIZE < 1)
+		return (NULL);
 	tmp = (char *)malloc(BUFFER_SIZE + 1);
+	if (!tmp)
+		return (NULL);
 	r = read(fd, (void *)tmp, BUFFER_SIZE);
+	if (r == -1)
+	{
+		free(tmp);
+		return (NULL);
+	}
 	tmp[r] = '\0';
 	buf = case_rmd(rmd, tmp);
 	n = ft_strchr_int(buf, '\n');
@@ -65,12 +93,6 @@ char	*get_next_line(int fd)
 		rmd = ft_strdup((const char *)&buf[n + 1]);
 		buf[n + 1] = '\0';
 	}
-	if (!r && rmd && n == -1)
-	{
-		if (buf[0])
-			buf = add_str(buf, "\n");
-		free(rmd);
-		rmd = NULL;
-	}
+	case_no_nl(n, &buf, &rmd);
 	return (buf);
 }
