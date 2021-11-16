@@ -65,6 +65,22 @@ static void	case_no_nl(int n, char **buf, char **rmd)
 	}
 }
 
+static char	*reset_buf(char *buf, int n)
+{
+	int		i;
+	char	*ret;
+
+	i = -1;
+	ret = (char *)malloc(n + 2);
+	if (!ret)
+		return (NULL);
+	while (++i < (n + 1))
+		ret[i] = buf[i];
+	ret[i] = '\0';
+	free(buf);
+	return (ret);
+}
+
 char	*get_next_line(int fd)
 {
 	static char	*rmd = NULL;
@@ -81,7 +97,7 @@ char	*get_next_line(int fd)
 		if (rmd)
 			free(rmd);
 		rmd = ft_strdup((const char *)&buf[n + 1]);
-		buf[n + 1] = '\0';
+		buf = reset_buf(buf, n);
 	}
 	if (n == -2)
 	{
