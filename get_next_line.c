@@ -21,32 +21,43 @@ char	*add_str(char *buf, char *tmp)
 	return (meow);
 }
 
-char	*case_rmd(char *rmd, char *tmp)
+int case_rmd(char *rmd, char **buf)
 {
-	char	*buf;
-
 	if (rmd)
-		buf = ft_strjoin(rmd, tmp);
+		*buf = ft_strdup(rmd);
 	else
-		buf = ft_strdup(tmp);
-	return (buf);
+		*buf = ft_strdup("");
+	if (!(*buf))
+		return (0);
+	return (1);
 }
 
-int	read_file(int fd, char **tmp, char **buf, int *n, char **rmd)
+int	read_file(int fd, char **buf, char **rmd)
 {
-	int	r;
+	int		r;
+	int		n;
+	char	*tmp;
 
-	r = read(fd, (void *)(*tmp), BUFFER_SIZE);
-	if (r == -1)
+	tmp = (char *)malloc(BUFFER_SIZE + 1);
+	if (!tmp)
+		return (-2);
+	n = ft_strchr_int(*buf, '\n');
+	r = BUFFER_SIZE;
+	while (n == -1 && r == BUFFER_SIZE)
 	{
-		free(*tmp);
-		return (r);
+		r = read(fd, (void *)tmp, BUFFER_SIZE);
+		if (r == -1)
+		{
+			free(tmp);
+			return (-2);
+		}
+		tmp[r] = '\0';
+		*buf = add_str(*buf, tmp);
+		n = ft_strchr_int(*buf, '\n');
+		*rmd = add_str(*rmd, *buf);
 	}
-	(*tmp)[r] = '\0';
-	*buf = add_str(*buf, *tmp);
-	*n = ft_strchr_int(*buf, '\n');
-	*rmd = add_str(*rmd, *buf);
-	return (r);
+	free(tmp);
+	return (n);
 }
 
 void	case_no_nl(int n, char **buf, char **rmd)
@@ -67,31 +78,26 @@ char	*get_next_line(int fd)
 {
 	static char	*rmd = NULL;
 	char		*buf;
-	char		*tmp;
-	int			r;
 	int			n;
 
 	if (fd < 0 || BUFFER_SIZE < 1)
 		return (NULL);
-	tmp = (char *)malloc(BUFFER_SIZE + 1);
-	if (!tmp)
+	if (!case_rmd(rmd, &buf))
 		return (NULL);
-	r = read(fd, (void *)tmp, BUFFER_SIZE);
-	if (r == -1)
+	n = read_file(fd, &buf, &rmd);
+	if (n != -1 && n != -2)
 	{
-		free(tmp);
-		return (NULL);
-	}
-	tmp[r] = '\0';
-	buf = case_rmd(rmd, tmp);
-	n = ft_strchr_int(buf, '\n');
-	while (n == -1 && r == BUFFER_SIZE)
-		r = read_file(fd, &tmp, &buf, &n, &rmd);
-	free(tmp);
-	if (n != -1)
-	{
+		if (rmd)
+			free(rmd);
 		rmd = ft_strdup((const char *)&buf[n + 1]);
 		buf[n + 1] = '\0';
+	}
+	if (n == -2)
+	{
+		if (rmd)
+			free(rmd);
+		free(buf);
+		return (NULL);
 	}
 	case_no_nl(n, &buf, &rmd);
 	return (buf);

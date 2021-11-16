@@ -42,6 +42,8 @@ int	ft_strchr_int(const char *s, int c)
 	int	i;
 
 	i = -1;
+	if (!s)
+		return (-1);
 	while (s[++i])
 	{
 		if (s[i] == (char)c)
