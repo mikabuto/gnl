@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static int set_buf(char *rmd, char **buf)
 {
@@ -67,29 +67,29 @@ static void	case_no_nl(int n, char **buf, char **rmd)
 
 char	*get_next_line(int fd)
 {
-	static char	*rmd = NULL;
+	static char	*rmd[FOPEN_MAX];
 	char		*buf;
 	int			n;
 
 	if (fd < 0 || BUFFER_SIZE < 1 || fd > FOPEN_MAX)
 		return (NULL);
-	if (!set_buf(rmd, &buf))
+	if (!set_buf(rmd[fd], &buf))
 		return (NULL);
-	n = read_file(fd, &buf, &rmd);
+	n = read_file(fd, &buf, &(rmd[fd]));
 	if (n != -1 && n != -2)
 	{
-		if (rmd)
-			free(rmd);
-		rmd = ft_strdup((const char *)&buf[n + 1]);
+		if (rmd[fd])
+			free(rmd[fd]);
+		rmd[fd] = ft_strdup((const char *)&buf[n + 1]);
 		buf[n + 1] = '\0';
 	}
 	if (n == -2)
 	{
-		if (rmd)
-			free(rmd);
+		if (rmd[fd])
+			free(rmd[fd]);
 		free(buf);
 		return (NULL);
 	}
-	case_no_nl(n, &buf, &rmd);
+	case_no_nl(n, &buf, &(rmd[fd]));
 	return (buf);
 }
