@@ -52,14 +52,14 @@ int	ft_strchr_int(const char *s, int c)
 	return (-1);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*s;
 	size_t	i;
 	size_t	s1_len;
 	size_t	s2_len;
 
-	i = 0;
+	i = -1;
 	if (!s1 || !s2)
 		return (NULL);
 	s1_len = ft_strlen(s1);
@@ -67,10 +67,11 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	s = (char *)malloc(s1_len + s2_len + 1);
 	if (!s)
 		return (NULL);
-	while (*s1)
-		s[i++] = *s1++;
+	while (s1[++i])
+		s[i] = s1[i];
 	while (*s2)
 		s[i++] = *s2++;
 	s[i] = '\0';
+	free(s1);
 	return (s);
 }

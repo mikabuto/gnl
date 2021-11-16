@@ -12,16 +12,7 @@
 
 #include "get_next_line.h"
 
-char	*add_str(char *buf, char *tmp)
-{
-	char	*meow;
-
-	meow = ft_strjoin((const char *)buf, (const char *)tmp);
-	free(buf);
-	return (meow);
-}
-
-int case_rmd(char *rmd, char **buf)
+static int set_buf(char *rmd, char **buf)
 {
 	if (rmd)
 		*buf = ft_strdup(rmd);
@@ -32,7 +23,7 @@ int case_rmd(char *rmd, char **buf)
 	return (1);
 }
 
-int	read_file(int fd, char **buf, char **rmd)
+static int	read_file(int fd, char **buf, char **rmd)
 {
 	int		r;
 	int		n;
@@ -43,6 +34,7 @@ int	read_file(int fd, char **buf, char **rmd)
 		return (-2);
 	n = ft_strchr_int(*buf, '\n');
 	r = BUFFER_SIZE;
+	// *rmd = ft_strjoin(*rmd, *buf);
 	while (n == -1 && r == BUFFER_SIZE)
 	{
 		r = read(fd, (void *)tmp, BUFFER_SIZE);
@@ -52,15 +44,16 @@ int	read_file(int fd, char **buf, char **rmd)
 			return (-2);
 		}
 		tmp[r] = '\0';
-		*buf = add_str(*buf, tmp);
+		*buf = ft_strjoin(*buf, tmp);
 		n = ft_strchr_int(*buf, '\n');
-		*rmd = add_str(*rmd, *buf);
+		// printf("\n\n_____________________\nbuf: %s\nrmd: %s\n", *buf, *rmd);
 	}
+	*rmd = ft_strjoin(*rmd, *buf);
 	free(tmp);
 	return (n);
 }
 
-void	case_no_nl(int n, char **buf, char **rmd)
+static void	case_no_nl(int n, char **buf, char **rmd)
 {
 	if (n == -1)
 	{
@@ -82,7 +75,7 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || BUFFER_SIZE < 1)
 		return (NULL);
-	if (!case_rmd(rmd, &buf))
+	if (!set_buf(rmd, &buf))
 		return (NULL);
 	n = read_file(fd, &buf, &rmd);
 	if (n != -1 && n != -2)
