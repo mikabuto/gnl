@@ -21,8 +21,8 @@
 # include <unistd.h>
 # include <limits.h>
 
-# ifndef FOPEN_MAX
-#  define FOPEN_MAX 10240
+# ifndef OPEN_MAX
+#  define OPEN_MAX 10240
 # endif
 
 char	*get_next_line(int fd);

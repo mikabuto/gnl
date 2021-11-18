@@ -12,7 +12,7 @@
 
 #include "get_next_line_bonus.h"
 
-static int set_buf(char *rmd, char **buf)
+static int	set_buf(char *rmd, char **buf)
 {
 	if (rmd)
 		*buf = ft_strdup(rmd);
@@ -55,7 +55,7 @@ static void	case_no_nl(int n, char **buf, char **rmd)
 {
 	if (n == -1)
 	{
-		if(!((*buf)[0]))
+		if (!((*buf)[0]))
 		{
 			free(*buf);
 			*buf = NULL;
@@ -83,11 +83,11 @@ static char	*reset_buf(char *buf, int n)
 
 char	*get_next_line(int fd)
 {
-	static char	*rmd[FOPEN_MAX];
+	static char	*rmd[OPEN_MAX];
 	char		*buf;
 	int			n;
 
-	if (fd < 0 || BUFFER_SIZE < 1 || fd > FOPEN_MAX)
+	if (fd < 0 || BUFFER_SIZE < 1 || fd > OPEN_MAX)
 		return (NULL);
 	if (!set_buf(rmd[fd], &buf))
 		return (NULL);
@@ -98,7 +98,6 @@ char	*get_next_line(int fd)
 			free(rmd[fd]);
 		rmd[fd] = ft_strdup((const char *)&buf[n + 1]);
 		buf = reset_buf(buf, n);
-		buf[n + 1] = '\0';
 	}
 	if (n == -2)
 	{
